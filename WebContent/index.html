@@ -1,23 +1,29 @@
 <html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
 <body>
 <script src="jquery.min.js"></script>
         <script src="jquery.xml2json.js"></script>
 	<audio controls autoplay></audio>
-        <input onclick="startRecording()" type="button" value="Â¼Òô" />
-        <input onclick="stopRecording()" type="button" value="Í£Ö¹" />
-        <input onclick="playRecording()" type="button" value="²¥·Å" />
-        <input onclick="uploadAudio()" type="button" value="Ìá½»" />
-		<input onclick="download()" type="button" value="ÏÂÔØ" />	
+        <input onclick="startRecording()" type="button" value="å½•éŸ³" />
+        <input onclick="stopRecording()" type="button" value="åœæ­¢" />
+        <input onclick="playRecording()" type="button" value="æ’­æ”¾" />
+        <input onclick="uploadAudio()" type="button" value="æäº¤" />
+		<input onclick="download()" type="button" value="ä¸‹è½½" />
+		<input type="text" id="anwser">
+		<input onclick="anwser()" type="button" value="å›ç­”" />
 	<script>		
 	(function (window) {
-		//¼æÈİ
+		//å…¼å®¹
 	    window.URL = window.URL || window.webkitURL;
 	    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
 	    var HZRecorder = function (stream, config) {
 	        config = config || {};
-	        config.sampleBits = config.sampleBits || 8;      //²ÉÑùÊıÎ» 8, 16
-	        config.sampleRate = config.sampleRate || (44100 / 6);   //²ÉÑùÂÊ(1/6 44100)
+	        config.sampleBits = config.sampleBits || 16;      //é‡‡æ ·æ•°ä½ 8, 16
+	        config.sampleRate = config.sampleRate || 16000;   //é‡‡æ ·ç‡(1/6 44100)
 
 	        var context = new (window.webkitAudioContext || window.AudioContext)();
 	        var audioInput = context.createMediaStreamSource(stream);
@@ -25,25 +31,25 @@
 	        var recorder = createScript.apply(context, [4096, 1, 1]);
 
 	        var audioData = {
-	            size: 0          //Â¼ÒôÎÄ¼ş³¤¶È
-	            , buffer: []     //Â¼Òô»º´æ
-	            , inputSampleRate: context.sampleRate    //ÊäÈë²ÉÑùÂÊ
-	            , inputSampleBits: 16       //ÊäÈë²ÉÑùÊıÎ» 8, 16
-	            , outputSampleRate: config.sampleRate    //Êä³ö²ÉÑùÂÊ
-	            , oututSampleBits: config.sampleBits       //Êä³ö²ÉÑùÊıÎ» 8, 16
+	            size: 0          //å½•éŸ³æ–‡ä»¶é•¿åº¦
+	            , buffer: []     //å½•éŸ³ç¼“å­˜
+	            , inputSampleRate: context.sampleRate    //è¾“å…¥é‡‡æ ·ç‡
+	            , inputSampleBits: 16       //è¾“å…¥é‡‡æ ·æ•°ä½ 8, 16
+	            , outputSampleRate: config.sampleRate    //è¾“å‡ºé‡‡æ ·ç‡
+	            , oututSampleBits: config.sampleBits       //è¾“å‡ºé‡‡æ ·æ•°ä½ 8, 16
 	            , input: function (data) {
 	                this.buffer.push(new Float32Array(data));
 	                this.size += data.length;
 	            }
-	            , compress: function () { //ºÏ²¢Ñ¹Ëõ
-	                //ºÏ²¢
+	            , compress: function () { //åˆå¹¶å‹ç¼©
+	                //åˆå¹¶
 	                var data = new Float32Array(this.size);
 	                var offset = 0;
 	                for (var i = 0; i < this.buffer.length; i++) {
 	                    data.set(this.buffer[i], offset);
 	                    offset += this.buffer[i].length;
 	                }
-	                //Ñ¹Ëõ
+	                //å‹ç¼©
 	                var compression = parseInt(this.inputSampleRate / this.outputSampleRate);
 	                var length = data.length / compression;
 	                var result = new Float32Array(length);
@@ -63,7 +69,7 @@
 	                var buffer = new ArrayBuffer(44 + dataLength);
 	                var data = new DataView(buffer);
 
-	                var channelCount = 1;//µ¥ÉùµÀ
+	                var channelCount = 1;//å•å£°é“
 	                var offset = 0;
 
 	                var writeString = function (str) {
@@ -72,33 +78,33 @@
 	                    }
 	                }
 
-	                // ×ÊÔ´½»»»ÎÄ¼ş±êÊ¶·û 
+	                // èµ„æºäº¤æ¢æ–‡ä»¶æ ‡è¯†ç¬¦ 
 	                writeString('RIFF'); offset += 4;
-	                // ÏÂ¸öµØÖ·¿ªÊ¼µ½ÎÄ¼şÎ²×Ü×Ö½ÚÊı,¼´ÎÄ¼ş´óĞ¡-8 
+	                // ä¸‹ä¸ªåœ°å€å¼€å§‹åˆ°æ–‡ä»¶å°¾æ€»å­—èŠ‚æ•°,å³æ–‡ä»¶å¤§å°-8 
 	                data.setUint32(offset, 36 + dataLength, true); offset += 4;
-	                // WAVÎÄ¼ş±êÖ¾
+	                // WAVæ–‡ä»¶æ ‡å¿—
 	                writeString('WAVE'); offset += 4;
-	                // ²¨ĞÎ¸ñÊ½±êÖ¾ 
+	                // æ³¢å½¢æ ¼å¼æ ‡å¿— 
 	                writeString('fmt '); offset += 4;
-	                // ¹ıÂË×Ö½Ú,Ò»°ãÎª 0x10 = 16 
+	                // è¿‡æ»¤å­—èŠ‚,ä¸€èˆ¬ä¸º 0x10 = 16 
 	                data.setUint32(offset, 16, true); offset += 4;
-	                // ¸ñÊ½Àà±ğ (PCMĞÎÊ½²ÉÑùÊı¾İ) 
+	                // æ ¼å¼ç±»åˆ« (PCMå½¢å¼é‡‡æ ·æ•°æ®) 
 	                data.setUint16(offset, 1, true); offset += 2;
-	                // Í¨µÀÊı 
+	                // é€šé“æ•° 
 	                data.setUint16(offset, channelCount, true); offset += 2;
-	                // ²ÉÑùÂÊ,Ã¿ÃëÑù±¾Êı,±íÊ¾Ã¿¸öÍ¨µÀµÄ²¥·ÅËÙ¶È 
+	                // é‡‡æ ·ç‡,æ¯ç§’æ ·æœ¬æ•°,è¡¨ç¤ºæ¯ä¸ªé€šé“çš„æ’­æ”¾é€Ÿåº¦ 
 	                data.setUint32(offset, sampleRate, true); offset += 4;
-	                // ²¨ĞÎÊı¾İ´«ÊäÂÊ (Ã¿ÃëÆ½¾ù×Ö½ÚÊı) µ¥ÉùµÀ¡ÁÃ¿ÃëÊı¾İÎ»Êı¡ÁÃ¿Ñù±¾Êı¾İÎ»/8 
+	                // æ³¢å½¢æ•°æ®ä¼ è¾“ç‡ (æ¯ç§’å¹³å‡å­—èŠ‚æ•°) å•å£°é“Ã—æ¯ç§’æ•°æ®ä½æ•°Ã—æ¯æ ·æœ¬æ•°æ®ä½/8 
 	                data.setUint32(offset, channelCount * sampleRate * (sampleBits / 8), true); offset += 4;
-	                // ¿ìÊı¾İµ÷ÕûÊı ²ÉÑùÒ»´ÎÕ¼ÓÃ×Ö½ÚÊı µ¥ÉùµÀ¡ÁÃ¿Ñù±¾µÄÊı¾İÎ»Êı/8 
+	                // å¿«æ•°æ®è°ƒæ•´æ•° é‡‡æ ·ä¸€æ¬¡å ç”¨å­—èŠ‚æ•° å•å£°é“Ã—æ¯æ ·æœ¬çš„æ•°æ®ä½æ•°/8 
 	                data.setUint16(offset, channelCount * (sampleBits / 8), true); offset += 2;
-	                // Ã¿Ñù±¾Êı¾İÎ»Êı 
+	                // æ¯æ ·æœ¬æ•°æ®ä½æ•° 
 	                data.setUint16(offset, sampleBits, true); offset += 2;
-	                // Êı¾İ±êÊ¶·û 
+	                // æ•°æ®æ ‡è¯†ç¬¦ 
 	                writeString('data'); offset += 4;
-	                // ²ÉÑùÊı¾İ×ÜÊı,¼´Êı¾İ×Ü´óĞ¡-44 
+	                // é‡‡æ ·æ•°æ®æ€»æ•°,å³æ•°æ®æ€»å¤§å°-44 
 	                data.setUint32(offset, dataLength, true); offset += 4;
-	                // Ğ´Èë²ÉÑùÊı¾İ 
+	                // å†™å…¥é‡‡æ ·æ•°æ® 
 	                if (sampleBits === 8) {
 	                    for (var i = 0; i < bytes.length; i++, offset++) {
 	                        var s = Math.max(-1, Math.min(1, bytes[i]));
@@ -117,31 +123,31 @@
 	            }
 	        };
 
-	        //¿ªÊ¼Â¼Òô
+	        //å¼€å§‹å½•éŸ³
 	        this.start = function () {
 	            audioInput.connect(recorder);
 	            recorder.connect(context.destination);
 	        }
 
-	        //Í£Ö¹
+	        //åœæ­¢
 	        this.stop = function () {
 	            recorder.disconnect();
 	        }
 
-	        //»ñÈ¡ÒôÆµÎÄ¼ş
+	        //è·å–éŸ³é¢‘æ–‡ä»¶
 	        this.getBlob = function () {
 	            this.stop();
 	            return audioData.encodeWAV();
 	        }
 
-	        //»Ø·Å
+	        //å›æ”¾
 	        this.play = function (audio) {
 	            audio.src = window.URL.createObjectURL(this.getBlob());
 	        }
 
-	        //ÉÏ´«
+	        //ä¸Šä¼ 
 	        this.upload = function () {
-	        	var url = "http://vop.baidu.com/server_api";
+	        	var url = "https://vop.baidu.com/server_api";
 	        	var fr = new FileReader();
 	        	var b =this.getBlob();
 	            fr.readAsDataURL(b);
@@ -162,7 +168,7 @@
 		            var postdata = JSON.stringify(params);
 		            $.ajax({
 		                url:url,
-		                type:'post',
+		                type:'POST',
 		                contentType:'application/json',
 		                data:postdata,
 		                success:function(d){
@@ -170,31 +176,31 @@
 		                },
 		                error:function(e){
 		                    console.log('e:', e);
-		                    var recogedtext = 'Î´Ê¶±ğÇëÖØÊÔ';
+		                    var recogedtext = 'æœªè¯†åˆ«è¯·é‡è¯•';
 		                },
 		            });
 	            }
 	        }
 
-	        //ÒôÆµ²É¼¯
+	        //éŸ³é¢‘é‡‡é›†
 	        recorder.onaudioprocess = function (e) {
 	            audioData.input(e.inputBuffer.getChannelData(0));
 	        }
 
 	    };
-	    //Å×³öÒì³£
+	    //æŠ›å‡ºå¼‚å¸¸
 	    HZRecorder.throwError = function (message) {
 	        alert(message);
 	        throw new function () { this.toString = function () { return message; } }
 	    }
-	    //ÊÇ·ñÖ§³ÖÂ¼Òô
+	    //æ˜¯å¦æ”¯æŒå½•éŸ³
 	    HZRecorder.canRecording = (navigator.getUserMedia != null);
-	    //»ñÈ¡Â¼Òô»ú
+	    //è·å–å½•éŸ³æœº
 	    HZRecorder.get = function (callback, config) {
 	        if (callback) {
 	            if (navigator.getUserMedia) {
 	                navigator.getUserMedia(
-	                    { audio: true } //Ö»ÆôÓÃÒôÆµ
+	                    { audio: true } //åªå¯ç”¨éŸ³é¢‘
 	                    , function (stream) {
 	                        var rec = new HZRecorder(stream, config);
 	                        callback(rec);
@@ -203,23 +209,23 @@
 	                        switch (error.code || error.name) {
 	                            case 'PERMISSION_DENIED':
 	                            case 'PermissionDeniedError':
-	                                HZRecorder.throwError('ÓÃ»§¾Ü¾øÌá¹©ĞÅÏ¢¡£');
+	                                HZRecorder.throwError('ç”¨æˆ·æ‹’ç»æä¾›ä¿¡æ¯ã€‚');
 	                                break;
 	                            case 'NOT_SUPPORTED_ERROR':
 	                            case 'NotSupportedError':
-	                                HZRecorder.throwError('ä¯ÀÀÆ÷²»Ö§³ÖÓ²¼şÉè±¸¡£');
+	                                HZRecorder.throwError('æµè§ˆå™¨ä¸æ”¯æŒç¡¬ä»¶è®¾å¤‡ã€‚');
 	                                break;
 	                            case 'MANDATORY_UNSATISFIED_ERROR':
 	                            case 'MandatoryUnsatisfiedError':
-	                                HZRecorder.throwError('ÎŞ·¨·¢ÏÖÖ¸¶¨µÄÓ²¼şÉè±¸¡£');
+	                                HZRecorder.throwError('æ— æ³•å‘ç°æŒ‡å®šçš„ç¡¬ä»¶è®¾å¤‡ã€‚');
 	                                break;
 	                            default:
-	                                HZRecorder.throwError('ÎŞ·¨´ò¿ªÂó¿Ë·ç¡£Òì³£ĞÅÏ¢:' + (error.code || error.name));
+	                                HZRecorder.throwError('æ— æ³•æ‰“å¼€éº¦å…‹é£ã€‚å¼‚å¸¸ä¿¡æ¯:' + (error.code || error.name));
 	                                break;
 	                        }
 	                    });
 	            } else {
-	                HZRecorder.throwErr('µ±Ç°ä¯ÀÀÆ÷²»Ö§³ÖÂ¼Òô¹¦ÄÜ¡£'); return;
+	                HZRecorder.throwErr('å½“å‰æµè§ˆå™¨ä¸æ”¯æŒå½•éŸ³åŠŸèƒ½ã€‚'); return;
 	            }
 	        }
 	    }
@@ -263,6 +269,30 @@
             window.URL.revokeObjectURL(link.href);
         }
       }
+    
+    function anwser(){
+    	var params = {
+    			tex:'è¿™æ˜¯ç­”æ¡ˆ',
+    			tok:'24.508511a27a68cb70514dead3959eda22.2592000.1511369089.282335-10270610',
+    			lan:'zh',
+    			ctp:'1'
+            };
+        	console.log(params);
+
+            var postdata = JSON.stringify(params);
+            $.ajax({
+                url:'http://tsn.baidu.com/text2audio',
+                type:'POST',
+                data:postdata,
+                success:function(d){
+                	audio.src = window.URL.createObjectURL(d);
+                },
+                error:function(e){
+                    console.log('e:', e);
+                    var recogedtext = 'æœªè¯†åˆ«è¯·é‡è¯•';
+                },
+            });
+    }
 
 		</script>
 </body>
