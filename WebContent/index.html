@@ -147,30 +147,24 @@
 
 	        //上传
 	        this.upload = function () {
-	        	var url = "https://vop.baidu.com/server_api";
+	        	var url = "http://localhost:8080/listen";
 	        	var fr = new FileReader();
 	        	var b =this.getBlob();
 	            fr.readAsDataURL(b);
 	            
 	            fr.onload = function(){
 		        	var params = {
-	                    format:'wav',
-	                    rate:16000,
-	                    channel:1,
-	                    cuid:654561456151515,
-	                    token:'24.508511a27a68cb70514dead3959eda22.2592000.1511369089.282335-10270610',
-	                    lan:'zh',
 	                    speech:fr.result.substr(22),
 	                    len:b.size,
 	                };
 		        	console.log(params);
 	
-		            var postdata = JSON.stringify(params);
+		            //var postdata = JSON.stringify(params);
 		            $.ajax({
 		                url:url,
 		                type:'POST',
-		                contentType:'application/json',
-		                data:postdata,
+		                //contentType:'application/json',
+		                data:params,
 		                success:function(d){
 		                    console.log(d);
 		                },

@@ -56,7 +56,8 @@ public class Sample {
         params.put("cuid", cuid);
         params.put("len", pcmFile.length());
         params.put("speech", DatatypeConverter.printBase64Binary(loadFile(pcmFile)));
-
+        System.out.println("len:"+pcmFile.length());
+        System.out.println(DatatypeConverter.printBase64Binary(loadFile(pcmFile)));
         // add request header
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
